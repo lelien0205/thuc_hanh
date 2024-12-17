@@ -85,9 +85,8 @@ const products = [
   },
 ];
 
-products.forEach(
-  ({ name, id, price, category }) => {
-    dessertCards.innerHTML += `
+products.forEach(({ name, id, price, category }) => {
+  dessertCards.innerHTML += `
       <div class="dessert-card">
         <h2>${name}</h2>
         <p class="dessert-price">$${price}</p>
@@ -98,8 +97,7 @@ products.forEach(
         </button>
       </div>
     `;
-  }
-);
+});
 
 class ShoppingCart {
   constructor() {
@@ -108,35 +106,45 @@ class ShoppingCart {
     this.taxRate = 8.25;
   }
 
+  //Thêm một sản phẩm vào giỏ hàng khi người dùng nhấn nút "Add to cart".
   addItem(id, products) {
+    //Tìm sản phẩm dựa trên id
     const product = products.find((item) => item.id === id);
     const { name, price } = product;
+    //Thêm sản phẩm vào mảng items
     this.items.push(product);
 
+    //Tính số lượng của từng sản phẩm:
     const totalCountPerProduct = {};
     this.items.forEach((dessert) => {
-      totalCountPerProduct[dessert.id] = (totalCountPerProduct[dessert.id] || 0) + 1;
-    })
+      totalCountPerProduct[dessert.id] =
+        (totalCountPerProduct[dessert.id] || 0) + 1;
+    });
 
     const currentProductCount = totalCountPerProduct[product.id];
-    const currentProductCountSpan = document.getElementById(`product-count-for-id${id}`);
+    const currentProductCountSpan = document.getElementById(
+      `product-count-for-id${id}`
+    );
 
-    currentProductCount > 1 
-      ? currentProductCountSpan.textContent = `${currentProductCount}x`
-      : productsContainer.innerHTML += `
+    // Cập nhật giao diện giỏ hàng:
+    currentProductCount > 1
+      ? (currentProductCountSpan.textContent = `${currentProductCount}x`)
+      : (productsContainer.innerHTML += `
       <div id="dessert${id}" class="product">
         <p>
           <span class="product-count" id="product-count-for-id${id}"></span>${name}
         </p>
         <p>${price}</p>
       </div>
-      `;
+      `);
   }
 
+  //Trả về tổng số lượng sản phẩm trong giỏ hàng.
   getCounts() {
     return this.items.length;
   }
 
+  //Xóa toàn bộ sản phẩm khỏi giỏ hàng.
   clearCart() {
     if (!this.items.length) {
       alert("Your shopping cart is already empty");
@@ -158,10 +166,12 @@ class ShoppingCart {
     }
   }
 
+  //Tính thuế dựa trên số tiền đầu vào.
   calculateTaxes(amount) {
     return parseFloat(((this.taxRate / 100) * amount).toFixed(2));
   }
 
+  //Tính tổng giá trị giỏ hàng (bao gồm thuế).
   calculateTotal() {
     const subTotal = this.items.reduce((total, item) => total + item.price, 0);
     const tax = this.calculateTaxes(subTotal);
@@ -171,25 +181,26 @@ class ShoppingCart {
     cartTotal.textContent = `$${this.total.toFixed(2)}`;
     return this.total;
   }
-};
+}
 
 const cart = new ShoppingCart();
 const addToCartBtns = document.getElementsByClassName("add-to-cart-btn");
 
-[...addToCartBtns].forEach(
-  (btn) => {
-    btn.addEventListener("click", (event) => {
-      cart.addItem(Number(event.target.id), products);
-      totalNumberOfItems.textContent = cart.getCounts();
-      cart.calculateTotal();
-    })
-  }
-);
+//Xử lý nút "Add to cart"
+[...addToCartBtns].forEach((btn) => {
+  btn.addEventListener("click", (event) => {
+    cart.addItem(Number(event.target.id), products);
+    totalNumberOfItems.textContent = cart.getCounts();
+    cart.calculateTotal();
+  });
+});
 
+//Xử lý nút "Show/Hide cart"
 cartBtn.addEventListener("click", () => {
   isCartShowing = !isCartShowing;
   showHideCartSpan.textContent = isCartShowing ? "Hide" : "Show";
   cartContainer.style.display = isCartShowing ? "block" : "none";
 });
 
-clearCartBtn.addEventListener("click",cart.clearCart.bind(cart))
+//Xử lý nút "Clear cart"
+clearCartBtn.addEventListener("click", cart.clearCart.bind(cart));
